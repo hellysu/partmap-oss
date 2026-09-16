@@ -1,0 +1,4 @@
+title = "PartMap gitleaks configuration"
+
+[extend]
+useDefault = true

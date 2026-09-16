@@ -1,0 +1,28 @@
+name: Hosted pull request checks
+
+# Kept manual while GitHub-hosted Actions are unavailable for this account.
+# Before making the repository public, enable the pull_request trigger rather than running untrusted PRs on a self-hosted runner.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Restore tests
+        shell: pwsh
+        run: dotnet restore .\tests\PartMap.SmokeTests\PartMap.SmokeTests.csproj
+      - name: Run smoke tests
+        shell: pwsh
+        run: dotnet run --project .\tests\PartMap.SmokeTests\PartMap.SmokeTests.csproj -c Release --no-restore
+      - name: Strict build
+        shell: pwsh
+        run: dotnet build .\PartMap.csproj -c Release -p:TreatWarningsAsErrors=true

@@ -1,0 +1,42 @@
+<Window x:Class="PartMap.Dialogs.NewProductDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="新建产品" Width="620" SizeToContent="Height"
+        ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
+    <Grid Margin="22">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="110" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Grid.ColumnSpan="3" Margin="0,0,0,18" Padding="12" CornerRadius="8"
+                Background="{StaticResource AccentSoftBrush}">
+            <TextBlock TextWrapping="Wrap" Foreground="#0F756B"
+                       Text="PartMap 会直接管理所选目录中的原始 3MF，不会创建模型副本，也不会移动文件。包装图仍会复制到产品配置目录。" />
+        </Border>
+
+        <TextBlock Grid.Row="1" VerticalAlignment="Center" Text="产品名称" />
+        <TextBox x:Name="NameTextBox" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,4" />
+
+        <TextBlock Grid.Row="2" VerticalAlignment="Center" Text="包装图" />
+        <TextBox x:Name="ImagePathTextBox" Grid.Row="2" Grid.Column="1" Margin="0,4" IsReadOnly="True" />
+        <Button Grid.Row="2" Grid.Column="2" Content="选择图片…" Click="ChooseImage_OnClick" />
+
+        <TextBlock Grid.Row="3" VerticalAlignment="Center" Text="原模型目录" />
+        <TextBox x:Name="ModelsPathTextBox" Grid.Row="3" Grid.Column="1" Margin="0,4" IsReadOnly="True" />
+        <Button Grid.Row="3" Grid.Column="2" Content="选择目录…" Click="ChooseModels_OnClick" />
+
+        <StackPanel Grid.Row="4" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,18,0,0">
+            <Button Content="取消" IsCancel="True" />
+            <Button Content="创建产品" IsDefault="True" Click="Create_OnClick" />
+        </StackPanel>
+    </Grid>
+</Window>

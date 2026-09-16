@@ -1,0 +1,96 @@
+name: Release Windows
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish Windows release
+    runs-on: [self-hosted, Windows, X64, partmap-windows]
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Test, strict build, publish and startup smoke
+        shell: pwsh
+        run: .\verify-development.ps1 -Publish
+
+      - name: Package portable builds
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Remove-Item artifacts -Recurse -Force -ErrorAction SilentlyContinue
+          New-Item -ItemType Directory -Force -Path artifacts | Out-Null
+          $tag = '${{ github.ref_name }}'
+          Compress-Archive -Path 'dist\PartMap-win10-x64\*' -DestinationPath "artifacts\PartMap-Portable-win-x64-$tag.zip" -Force
+          Compress-Archive -Path 'dist\PartMap-win10-x86\*' -DestinationPath "artifacts\PartMap-Portable-win-x86-$tag.zip" -Force
+      - name: Prepare Inno Setup compiler
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $url = 'https://github.com/jrsoftware/issrc/releases/download/is-6_7_3/innosetup-6.7.3.exe'
+          $expectedHash = '9c73c3bae7ed48d44112a0f48e66742c00090bdb5bef71d9d3c056c66e97b732'
+          $setup = Join-Path $env:RUNNER_TEMP 'innosetup-6.7.3.exe'
+          $innoDir = Join-Path $env:RUNNER_TEMP 'PartMap-InnoSetup'
+          Remove-Item $innoDir -Recurse -Force -ErrorAction SilentlyContinue
+          Invoke-WebRequest $url -OutFile $setup
+          $actualHash = (Get-FileHash -LiteralPath $setup -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actualHash -ne $expectedHash) { throw "Inno Setup SHA256 mismatch: $actualHash" }
+          $process = Start-Process -FilePath $setup -ArgumentList @('/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/CURRENTUSER',"/DIR=$innoDir") -PassThru -Wait
+          if ($process.ExitCode -ne 0) { throw "Inno Setup bootstrap failed with exit code $($process.ExitCode)" }
+          $iscc = Join-Path $innoDir 'ISCC.exe'
+          if (-not (Test-Path -LiteralPath $iscc)) { throw "Inno Setup compiler not found: $iscc" }
+          "INNO_ISCC=$iscc" | Add-Content -LiteralPath $env:GITHUB_ENV
+
+      - name: Build full installer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = '${{ github.ref_name }}' -replace '^v', ''
+          & $env:INNO_ISCC "/DAppVersion=$version" 'installer\PartMap.iss'
+          if ($LASTEXITCODE -ne 0) {
+            throw "Inno Setup failed with exit code $LASTEXITCODE"
+          }
+
+      - name: Create checksums and release notes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = '${{ github.ref_name }}'
+          $assets = Get-ChildItem artifacts -File | Where-Object { $_.Extension -in '.zip', '.exe' }
+          if ($assets.Count -lt 3) { throw "Expected portable x64/x86 and setup assets." }
+          $hashLines = $assets | ForEach-Object {
+            $hash = (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($_.Name)"
+          }
+          Set-Content -LiteralPath 'artifacts\SHA256SUMS.txt' -Value $hashLines -Encoding utf8
+          $notes = @(
+            "# PartMap $tag",
+            '',
+            "- 推荐普通用户：PartMap-Setup-win-x64-$tag.exe，标准安装版，支持开始菜单、可选桌面快捷方式和卸载。",
+            "- 免安装使用：PartMap-Portable-win-x64-$tag.zip，解压后直接运行 PartMap.exe。",
+            "- PartMap-Portable-win-x86-$tag.zip 仅用于 32 位 Windows 或兼容排查。",
+            '- 三个版本都自带 .NET 8 运行环境，不要求电脑预装 .NET。'
+          )
+          Set-Content -LiteralPath 'artifacts\RELEASE-NOTES.md' -Value $notes -Encoding utf8
+      - name: Publish GitHub Release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = '${{ github.ref_name }}'
+          $assets = Get-ChildItem artifacts -File | Where-Object { $_.Name -ne 'RELEASE-NOTES.md' } | ForEach-Object { $_.FullName }
+          gh release create $tag @assets --verify-tag --title "PartMap $tag" --notes-file 'artifacts\RELEASE-NOTES.md'

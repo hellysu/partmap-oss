@@ -1,0 +1,34 @@
+<Window x:Class="PartMap.Dialogs.BatchSlicingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="批量切片进度" Width="560" Height="420" MinWidth="460" MinHeight="320"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False" Closing="Window_OnClosing">
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock x:Name="SummaryText" FontSize="16" FontWeight="SemiBold" Text="等待开始" />
+        <ProgressBar x:Name="QueueProgress" Grid.Row="1" Height="8" Margin="0,10,0,12" Minimum="0" />
+        <ListView x:Name="QueueList" Grid.Row="2" BorderThickness="1">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="文件" Width="250" DisplayMemberBinding="{Binding DisplayName}" />
+                    <GridViewColumn Header="状态" Width="75" DisplayMemberBinding="{Binding StatusText}" />
+                    <GridViewColumn Header="结果" Width="180" DisplayMemberBinding="{Binding Message}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Grid Grid.Row="3" Margin="0,12,0,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="HintText" VerticalAlignment="Center" Foreground="#6B7280"
+                       Text="切片在后台串行执行，可以继续使用主窗口。" />
+            <Button Grid.Column="1" Content="隐藏" Padding="18,7" Click="Hide_OnClick" />
+        </Grid>
+    </Grid>
+</Window>

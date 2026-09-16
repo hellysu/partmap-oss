@@ -1,0 +1,42 @@
+<Window x:Class="PartMap.Dialogs.ExcludedDirectoriesDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="排除文件夹" Width="560" Height="430" MinWidth="480" MinHeight="340"
+        WindowStartupLocation="CenterOwner" ResizeMode="CanResizeWithGrip"
+        Background="{StaticResource PageBrush}" ShowInTaskbar="False">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel>
+            <TextBlock Text="不读取这些子文件夹" FontSize="18" FontWeight="Bold" />
+            <TextBlock Margin="0,7,0,14" Foreground="{StaticResource MutedTextBrush}" TextWrapping="Wrap"
+                       Text="路径相对于当前模型根目录保存。文件不会被移动或删除，取消排除后原有映射会恢复。" />
+        </StackPanel>
+
+        <Border Grid.Row="1" Background="White" BorderBrush="{StaticResource LineBrush}"
+                BorderThickness="1" CornerRadius="10" Padding="8">
+            <Grid>
+                <ListBox x:Name="DirectoriesList" ItemsSource="{Binding ExcludedDirectories}"
+                         SelectionMode="Extended" BorderThickness="0" />
+                <TextBlock x:Name="EmptyText" Text="尚未排除任何文件夹" IsHitTestVisible="False"
+                           Foreground="{StaticResource MutedTextBrush}"
+                           HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="0,14,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                <Button Content="＋ 选择文件夹" Style="{StaticResource PrimaryButtonStyle}" Click="Add_OnClick" />
+                <Button Content="移除所选" Click="Remove_OnClick" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="取消" IsCancel="True" />
+                <Button Content="保存" Style="{StaticResource PrimaryButtonStyle}" IsDefault="True" Click="Save_OnClick" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
