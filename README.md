@@ -1,5 +1,11 @@
 # PartMap — 3MF 图像文件管理器
 
+[![Release](https://img.shields.io/github/v/release/hellysu/partmap-oss)](https://github.com/hellysu/partmap-oss/releases/latest) [![CI](https://github.com/hellysu/partmap-oss/actions/workflows/pr.yml/badge.svg)](https://github.com/hellysu/partmap-oss/actions/workflows/pr.yml) [![License: MIT](https://img.shields.io/github/license/hellysu/partmap-oss)](LICENSE)
+
+**English:** PartMap is an open-source Windows desktop app for visually organizing `.3mf` and `.gcode.3mf` files around product diagrams. It supports hotspot-to-file mapping, drag and drop, file history, portable metadata, shared multi-computer folders, and optional Bambu Studio slicing.
+
+It is designed for real 3D-printing workflows where one product contains many printable parts and operators need a fast visual way to find, version, move, and slice the right files without introducing a database or cloud dependency.
+
 PartMap 是一个 Windows 开源桌面工具，把产品示意图变成可操作的 3MF / G-code 3MF 文件索引。图片上的每个部件热点可以绑定一个或多个文件组，文件可双击打开、F2 重命名，并可拖到资源管理器或切片软件。
 
 ## 使用方法
