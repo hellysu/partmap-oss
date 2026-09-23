@@ -52,6 +52,55 @@ jobs:
             exit 1
           fi
 
+      - name: Inspect installer contents
+        shell: bash
+        run: |
+          set -euo pipefail
+          installer="$(find audit -maxdepth 1 -type f -iname 'PartMap-Setup-win-x64-*.exe' -print -quit)"
+          if [ -z "$installer" ]; then
+            echo "::error::Installer asset was not downloaded."
+            exit 1
+          fi
+
+          mkdir -p installer-extracted
+          7z x -y "$installer" -oinstaller-extracted >/dev/null
+
+          if find installer-extracted -type f \( \
+              -iname '*.pdb' -o \
+              -iname '*.log' -o \
+              -iname '*.tmp' -o \
+              -iname '*.lock' -o \
+              -iname '*.pfx' -o \
+              -iname '*.snk' -o \
+              -iname '.env' -o \
+              -iname '.env.*' -o \
+              -iname 'settings*.json' -o \
+              -iname 'PartMap.product.json' -o \
+              -iname '*.3mf' \
+            \) -print | grep -q .; then
+            echo "::error::Installer contains a forbidden private/development file."
+            find installer-extracted -type f \( \
+              -iname '*.pdb' -o \
+              -iname '*.log' -o \
+              -iname '*.tmp' -o \
+              -iname '*.lock' -o \
+              -iname '*.pfx' -o \
+              -iname '*.snk' -o \
+              -iname '.env' -o \
+              -iname '.env.*' -o \
+              -iname 'settings*.json' -o \
+              -iname 'PartMap.product.json' -o \
+              -iname '*.3mf' \
+            \) -print
+            exit 1
+          fi
+
+          if find installer-extracted -type f -path '*/products/*' -print | grep -q .; then
+            echo "::error::Installer contains files inside products/."
+            find installer-extracted -type f -path '*/products/*' -print
+            exit 1
+          fi
+
       - name: Check app binary for developer user paths
         shell: bash
         run: |
@@ -76,8 +125,20 @@ jobs:
             i=$((i + 1))
           done
 
+          installer_exe="$(find installer-extracted -type f -iname 'PartMap.exe' -print -quit)"
+          if [ -z "$installer_exe" ]; then
+            echo "::error::PartMap.exe not found inside installer."
+            exit 1
+          fi
+
+          if strings -a "$installer_exe" | grep -E -i '[A-Z]:\\Users\\[^\\]+'; then
+            echo "::error::Installer PartMap.exe contains an absolute Windows user-profile path."
+            exit 1
+          fi
+
       - name: Summary
         shell: bash
         run: |
           echo "Release privacy audit passed."
+          echo "Portable ZIPs and the installer passed the privacy audit."
           echo "No debug symbols, logs, local settings, certificates, model files, populated products folder, or absolute Windows user-profile path were found."
