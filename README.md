@@ -30,6 +30,8 @@ Instead of searching through folders and long filenames, you can click the part 
 
 It is built for real 3D-printing workflows where one product contains many printable parts, multiple versions, and multiple G-code outputs — especially when files are shared between Windows PCs and used with Bambu Studio.
 
+**Local-first by design:** PartMap does not require a database, account, API key, or cloud service for normal use. Your model files stay in the Windows or shared folders you choose.
+
 ## Why PartMap?
 
 A typical 3D-printing product may contain a helmet, sword, base, accessories, multiple revisions, and several sliced outputs. Traditional folder structures become slow and error-prone once the number of files grows.
@@ -71,6 +73,22 @@ Recommended packages:
 All release packages are self-contained .NET 8 builds. You do **not** need to install .NET separately.
 
 > The installer is currently not code-signed, so Windows SmartScreen may show an unknown-publisher warning.
+
+### Portable version note
+
+Extract the complete portable ZIP before running PartMap. Do not copy only `PartMap.exe`; the DLLs and companion files next to it are required.
+
+## Troubleshooting
+
+If PartMap does not start or behaves unexpectedly:
+
+- check `%LocalAppData%\\PartMap\\PartMap-startup.log`
+- make sure the PartMap folder and model folder are writable
+- for shared storage, prefer a consistent UNC path such as `\\\\server\\share\\models`
+- when reporting a problem, include the PartMap version, Windows version, and whether the model directory is local or on a network share
+- remove product names, customer data, credentials, and private network details before posting logs or screenshots publicly
+
+Bug reports and feature requests are welcome through [GitHub Issues](https://github.com/hellysu/partmap-oss/issues).
 
 ## Key Features
 
@@ -255,6 +273,12 @@ dotnet build PartMap.csproj -c Release
 dotnet run --project tests/PartMap.SmokeTests/PartMap.SmokeTests.csproj -c Release
 dotnet publish PartMap.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false
 ```
+
+## Feedback & Contributing
+
+- Report reproducible problems in [GitHub Issues](https://github.com/hellysu/partmap-oss/issues)
+- Feature ideas are welcome when they describe the workflow or pain point they are trying to improve
+- Please use synthetic/sample files rather than confidential product data in public reports
 
 ## Development
 
