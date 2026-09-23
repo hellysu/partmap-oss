@@ -24,6 +24,12 @@
   <img src="https://img.shields.io/badge/.NET-8-512BD4" alt=".NET 8" />
 </p>
 
+<p align="center">
+  <img src="docs/partmap-demo.jpg" alt="PartMap interface with a visual product map and 3MF / G-code file panels" width="100%" />
+</p>
+
+<p align="center"><em>Example project shown with synthetic demo data.</em></p>
+
 PartMap is an open-source Windows desktop app for visually organizing `.3mf` and `.gcode.3mf` files around product diagrams.
 
 Instead of searching through folders and long filenames, you can click the part on a product image and immediately see the model and sliced files that belong to it.
