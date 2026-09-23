@@ -35,4 +35,39 @@ New-Item -ItemType Directory -Force -Path (Join-Path $outputPath "products") | O
 Copy-Item -LiteralPath (Join-Path $projectRoot "README.md") -Destination (Join-Path $outputPath "使用说明.md") -Force
 Copy-Item -LiteralPath (Join-Path $projectRoot "LICENSE") -Destination (Join-Path $outputPath "LICENSE") -Force
 
+# Public-package privacy guard: a release must not accidentally carry
+# debug symbols, local settings, logs, credentials, or real model data.
+$forbiddenPatterns = @(
+    "*.pdb",
+    "*.log",
+    "*.tmp",
+    "*.lock",
+    "*.pfx",
+    "*.snk",
+    ".env",
+    ".env.*",
+    "settings*.json",
+    "PartMap.product.json",
+    "*.3mf"
+)
+
+$forbiddenFiles = @()
+foreach ($pattern in $forbiddenPatterns) {
+    $forbiddenFiles += @(Get-ChildItem -LiteralPath $outputPath -Recurse -File -Filter $pattern -ErrorAction SilentlyContinue)
+}
+
+$productsPath = Join-Path $outputPath "products"
+if (Test-Path -LiteralPath $productsPath -PathType Container) {
+    $forbiddenFiles += @(Get-ChildItem -LiteralPath $productsPath -Recurse -File -ErrorAction SilentlyContinue)
+}
+
+$forbiddenFiles = @($forbiddenFiles | Sort-Object FullName -Unique)
+if ($forbiddenFiles.Count -gt 0) {
+    $relative = $forbiddenFiles | ForEach-Object {
+        $_.FullName.Substring($outputPath.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar)
+    }
+    throw ("Public package contains forbidden/private files:" + [Environment]::NewLine + ($relative -join [Environment]::NewLine))
+}
+
+Write-Host "Privacy guard passed: no debug symbols, local settings, logs, credentials, or model files were packaged."
 Write-Host "Portable build created at: $outputPath"
