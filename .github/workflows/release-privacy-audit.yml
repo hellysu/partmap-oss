@@ -62,15 +62,22 @@ jobs:
             mkdir -p "$dir"
             unzip -q "$zip" -d "$dir"
             exe="$(find "$dir" -type f -iname 'PartMap.exe' -print -quit)"
-            if [ -z "$exe" ]; then
-              echo "::error::PartMap.exe not found in $zip"
+            dll="$(find "$dir" -type f -iname 'PartMap.dll' -print -quit)"
+            if [ -z "$exe" ] || [ -z "$dll" ]; then
+              echo "::error::PartMap.exe or PartMap.dll not found in $zip"
               exit 1
             fi
 
-            if strings -a "$exe" | grep -E -i '[A-Z]:\\Users\\[^\\]+'; then
-              echo "::error::PartMap.exe contains an absolute Windows user-profile path."
-              exit 1
-            fi
+            for binary in "$exe" "$dll"; do
+              if strings -a "$binary" | grep -E -i '[A-Z]:\\Users\\[^\\]+'; then
+                echo "::error::$binary contains an absolute Windows user-profile path."
+                exit 1
+              fi
+              if strings -a "$binary" | grep -E -i '(^|[^A-Za-z])(H|D):\\AI\\'; then
+                echo "::error::$binary contains a developer-machine drive path."
+                exit 1
+              fi
+            done
 
             i=$((i + 1))
           done
@@ -127,21 +134,28 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $exe = Get-ChildItem -LiteralPath $env:PARTMAP_AUDIT_INSTALL -Filter PartMap.exe -File -Recurse | Select-Object -First 1
-          if (-not $exe) { throw "PartMap.exe not found after installation." }
+          $binaries = @(
+            Get-ChildItem -LiteralPath $env:PARTMAP_AUDIT_INSTALL -Filter PartMap.exe -File -Recurse | Select-Object -First 1
+            Get-ChildItem -LiteralPath $env:PARTMAP_AUDIT_INSTALL -Filter PartMap.dll -File -Recurse | Select-Object -First 1
+          )
+          $binaries = @($binaries | Where-Object { $_ })
+          if ($binaries.Count -ne 2) { throw "PartMap.exe or PartMap.dll not found after installation." }
 
-          $bytes = [System.IO.File]::ReadAllBytes($exe.FullName)
-          $ascii = [System.Text.Encoding]::ASCII.GetString($bytes)
-          $unicode = [System.Text.Encoding]::Unicode.GetString($bytes)
           $patterns = @(
             '(?i)[A-Z]:\\Users\\[^\\\x00\r\n]+',
             '(?i)H:\\AI\\',
             '(?i)D:\\AI\\'
           )
 
-          foreach ($pattern in $patterns) {
-            if ($ascii -match $pattern -or $unicode -match $pattern) {
-              throw "PartMap.exe contains a developer-machine path pattern."
+          foreach ($binary in $binaries) {
+            $bytes = [System.IO.File]::ReadAllBytes($binary.FullName)
+            $ascii = [System.Text.Encoding]::ASCII.GetString($bytes)
+            $unicode = [System.Text.Encoding]::Unicode.GetString($bytes)
+
+            foreach ($pattern in $patterns) {
+              if ($ascii -match $pattern -or $unicode -match $pattern) {
+                throw "$($binary.Name) contains a developer-machine path pattern."
+              }
             }
           }
 
