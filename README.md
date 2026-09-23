@@ -1,98 +1,240 @@
-# PartMap — 3MF 图像文件管理器
+# PartMap — Visual 3MF & G-code Organizer for Bambu Studio
 
-[![Release](https://img.shields.io/github/v/release/hellysu/partmap-oss)](https://github.com/hellysu/partmap-oss/releases/latest) [![CI](https://github.com/hellysu/partmap-oss/actions/workflows/pr.yml/badge.svg)](https://github.com/hellysu/partmap-oss/actions/workflows/pr.yml) [![License: MIT](https://img.shields.io/github/license/hellysu/partmap-oss)](LICENSE)
+<p align="center">
+  <img src="PartMap-icon.png" alt="PartMap icon" width="128" />
+</p>
 
-**English:** PartMap is an open-source Windows desktop app for visually organizing `.3mf` and `.gcode.3mf` files around product diagrams. It supports hotspot-to-file mapping, drag and drop, file history, portable metadata, shared multi-computer folders, and optional Bambu Studio slicing.
+<p align="center">
+  <strong>Find the right print file visually instead of digging through folders.</strong>
+</p>
 
-It is designed for real 3D-printing workflows where one product contains many printable parts and operators need a fast visual way to find, version, move, and slice the right files without introducing a database or cloud dependency.
+<p align="center">
+  <a href="https://github.com/hellysu/partmap-oss/releases/latest"><strong>Download for Windows</strong></a>
+  ·
+  <a href="#quick-start">Quick Start</a>
+  ·
+  <a href="#中文说明">中文说明</a>
+</p>
 
-PartMap 是一个 Windows 开源桌面工具，把产品示意图变成可操作的 3MF / G-code 3MF 文件索引。图片上的每个部件热点可以绑定一个或多个文件组，文件可双击打开、F2 重命名，并可拖到资源管理器或切片软件。
+<p align="center">
+  <a href="https://github.com/hellysu/partmap-oss/releases/latest"><img src="https://img.shields.io/github/v/release/hellysu/partmap-oss" alt="Release" /></a>
+  <a href="https://github.com/hellysu/partmap-oss/actions/workflows/pr.yml"><img src="https://github.com/hellysu/partmap-oss/actions/workflows/pr.yml/badge.svg" alt="CI" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/hellysu/partmap-oss" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/Windows-10%2F11-blue" alt="Windows" />
+  <img src="https://img.shields.io/badge/.NET-8-512BD4" alt=".NET 8" />
+</p>
 
-## 使用方法
+PartMap is an open-source Windows desktop app for visually organizing `.3mf` and `.gcode.3mf` files around product diagrams.
 
-1. 双击 `PartMap.exe`。
-2. 点击“新建产品”，输入产品名，并选择包装图和原模型目录。PartMap 直接管理该目录，不复制或移动 3MF。
-3. 打开“布局编辑”，在左侧“待归类文件”中选择自动生成的文件组。
-4. 点击“框选部件”，在包装图对应部位拖出矩形并命名。
-5. 继续把其他文件组拖到已有热点；同一部件可绑定多个组。已归类文件默认从左栏隐藏，可用“显示全部”查看。
-6. 关闭“布局编辑”进入浏览模式。热点平时透明，鼠标移入会轻微高亮并变为手形；点击后在右侧查看文件。
+Instead of searching through folders and long filenames, you can click the part on a product image and immediately see the model and sliced files that belong to it.
 
-如果当前产品仍有待归类文件，打开或切换到该产品时会自动进入布局编辑并展开左侧栏。
+It is built for real 3D-printing workflows where one product contains many printable parts, multiple versions, and multiple G-code outputs — especially when files are shared between Windows PCs and used with Bambu Studio.
 
-## 整个模型文件夹迁移到其他电脑
+## Why PartMap?
 
-新版会在每个产品的 3MF 根目录维护 `配置/PartMap.product.json` 和 `配置/包装图.*`。便携配置包含产品名称、热点坐标、文件分组与人工映射规则，并可随整个模型文件夹一起迁移到另一台电脑。
+A typical 3D-printing product may contain a helmet, sword, base, accessories, multiple revisions, and several sliced outputs. Traditional folder structures become slow and error-prone once the number of files grows.
 
-从资源管理器把 `.3mf` 拖到图片热点，会复制到当前模型目录并直接绑定该部件；拖到右侧“部件文件”栏，会加入当前选中的部件。拖到其他位置仍按普通导入处理，同名文件不会覆盖。
+PartMap turns a packaging image, exploded view, or product diagram into a visual file index:
 
-底部“读取子目录”默认关闭，因此只读取和监控模型根目录；需要时可为当前产品单独开启。关闭开关不会删除已经保存的子目录映射。产品选择框旁的“改名”只修改产品显示名称，不会改目录或移动模型文件。
+- click a part on the image → see its files
+- drag files onto a hotspot → bind them to that part
+- keep original `.3mf` and `.gcode.3mf` outputs separated
+- rename, open, archive, or drag files without leaving the app
+- move the whole project to another computer without a database or cloud service
 
-底部“显示”可以切换“全部 3MF”“仅 `.gcode.3mf`”或“仅普通 `.3mf`”。选择单一格式时，右侧只保留对应的一栏；选择全部时恢复普通 3MF 与 G-code 3MF 上下双栏。筛选只改变界面内容，不会删除文件或修改热点映射。
+## Download
 
-`.gcode(1).3mf`、`.gcode(2).3mf` 等 Windows 重名副本同样按 G-code 3MF 识别和分栏，界面会隐藏完整特殊后缀。右侧分隔条只调整上下文件列表高度，不会再把标题行拉成大块空白。
+**Latest release:**  
+https://github.com/hellysu/partmap-oss/releases/latest
 
-开启子目录读取后，可用“排除文件夹…”选择模型根目录内不需要扫描的一个或多个子文件夹，也可在同一窗口移除排除项。排除路径按相对路径写入产品配置，文件和历史映射不会被删除。
+Recommended packages:
 
-在右侧选中一个或多个文件后，点击“移除选中组”即可解除这些文件组与当前部件的绑定；也可以直接把所选文件拖回左侧待归类区域。若同一组还被其他热点引用，其他部件的绑定保持不变。
+- **`PartMap-Setup-win-x64-*.exe`** — recommended for most Windows users
+- **`PartMap-Portable-win-x64-*.zip`** — portable 64-bit version
+- **`PartMap-Portable-win-x86-*.zip`** — 32-bit compatibility build
+- **`SHA256SUMS.txt`** — release checksums
 
-右侧“归到历史”会把所选真实文件移动到模型根目录下的 `历史` 文件夹，该文件夹不会被扫描或显示。归档文件名追加当天日期，例如 `头盔_2026-08-27.3mf`；同名时依次追加 `_v1`、`_v2`。G-code 文件的日期位于 `.gcode.3mf` 或 `.gcode(1).3mf` 之前。
+All release packages are self-contained .NET 8 builds. You do **not** need to install .NET separately.
 
-1. 在原电脑用新版 PartMap 打开一次产品并保存，确认模型根目录出现 `配置/PartMap.product.json` 和 `配置/包装图.*`。
-2. 把整个 3MF 文件夹复制到移动硬盘或另一台非局域网电脑。
-3. 在另一台电脑打开 PartMap，点击顶部“导入文件夹”，选择包含 `配置/PartMap.product.json` 的 3MF 根目录。
-4. 程序会恢复产品、包装图、热点和映射，并把模型根路径更新为新电脑上的实际位置。
+> The installer is currently not code-signed, so Windows SmartScreen may show an unknown-publisher warning.
 
-PartMap 不会为了便携配置复制原始 `.3mf`；以后修改热点、分组或文件名时，`配置/` 下的便携数据会同步更新。切片、归档等明确的文件操作仍会按界面提示修改对应文件。
+## Key Features
 
-## 便携目录
+### Visual hotspot mapping
+Turn a product image into a clickable parts map. Each hotspot can be linked to one or more file groups.
+
+### 3MF + G-code 3MF organization
+PartMap distinguishes source `.3mf` files from sliced `.gcode.3mf` files so operators can quickly choose the correct file type.
+
+### Drag-and-drop workflow
+Drag files into PartMap, between hotspots, back to the unclassified area, or out to Windows Explorer and slicing software.
+
+### Portable product metadata
+Each product can keep portable configuration in its model folder, including:
+
+- product name
+- hotspot coordinates
+- file grouping
+- manual mapping rules
+- product/packaging image
+
+### Shared multi-computer use
+PartMap supports shared-folder workflows with file locking and version protection to reduce accidental configuration overwrites.
+
+### File history
+Move old files into a dedicated history folder with automatic date/version naming while keeping the active workspace clean.
+
+### Bambu Studio workflow
+PartMap can be used alongside Bambu Studio and includes optional slicing-related integration for supported workflows.
+
+## Quick Start
+
+1. Run `PartMap.exe` or install the latest Windows release.
+2. Click **New Product**.
+3. Choose a product/packaging image and the folder containing your model files.
+4. Open **Layout Edit** mode.
+5. Draw a hotspot over a part and give it a name.
+6. Drag detected file groups onto that hotspot.
+7. Exit layout editing and click parts on the image to browse their files.
+
+If the current product still contains unclassified files, PartMap can automatically enter layout editing mode when that product is opened.
+
+## Typical Workflow
+
+1. Keep the product's model files in one folder.
+2. Add the product to PartMap.
+3. Use a packaging image, exploded view, or reference diagram.
+4. Bind visible parts to their matching `.3mf` and `.gcode.3mf` files.
+5. Click a part whenever you need to open, rename, drag, archive, or slice the correct file.
+
+This is particularly useful for production environments where operators need to locate the right file quickly and avoid selecting the wrong revision.
+
+## File Operations
+
+- **Double-click / Enter** — open a 3MF file using the Windows default application
+- **Drag `.3mf` files in** — copy them into the current product model directory
+- **F2** — rename the real file
+- **Delete / Delete File** — move local files to the Windows Recycle Bin
+- **Drag file cards out** — send files to the desktop, Explorer, or slicing software
+- **Show in folder** — reveal the real file in Explorer
+- **Change directory** — rebind a product to another model directory without copying files
+
+Windows duplicate names such as `.gcode(1).3mf` and `.gcode(2).3mf` are also recognized as G-code 3MF files.
+
+## Portable Project Data
+
+PartMap can maintain portable project metadata inside the model directory:
 
 ```text
-PartMap.exe
-products/             # 集中保存包装图、热点、映射和模型路径
-settings.<电脑名>.json # 每台电脑各自最近打开的产品
+配置/
+├─ PartMap.product.json
+└─ 包装图.*
 ```
 
-包装图会复制到 `products` 对应产品目录，配置中的程序内路径使用相对路径；映射网络盘会尽量转换成两台电脑通用的 UNC 路径。模型仍保留在你选择的原目录，不会被复制。复制完整 PartMap 目录后，图片、热点和映射会一起保留。
+This portable data can travel with the product folder to another computer.
 
-## 文件操作
+To migrate a product:
 
-- 双击或 Enter：使用 Windows 默认程序打开 3MF。
-- 从资源管理器拖入一个或多个 `.3mf`：复制到当前产品模型根目录；同名文件不会覆盖。
-- F2：重命名实际文件。
-- Delete 或“删除文件”：本地文件移到 Windows 回收站；共享目录会明确提示可能永久删除。
-- 拖动文件卡片：拖到桌面、资源管理器或切片软件。
-- “所在文件夹”：在资源管理器中选中文件。
-- “更换目录”：重新绑定产品的原模型目录，不复制文件。
-- 编辑模式拖动虚线热点：调整热点位置；右下角方块调整大小。
+1. Open and save the product once with a recent PartMap version.
+2. Confirm the `配置` folder exists inside the model directory.
+3. Copy the complete model directory to the other computer.
+4. Open PartMap and choose **Import Folder**.
+5. Select the model directory containing `配置/PartMap.product.json`.
 
-文件卡片会显示真实文件的最后修改日期。拖入复制会保留源文件的最后修改时间；复制期间先写入临时文件，完成后再显示为 `.3mf`，避免共享目录出现半复制模型。
+PartMap restores the product, image, hotspots, and mappings, then updates the model path for the new computer.
 
-文件名以 `.gcode.3mf` 结尾时，卡片和自动分组会隐藏这段完整后缀；实际文件名保持不变，F2 重命名框仍显示真实名称。
+PartMap does not duplicate the original model files just to create portable metadata.
 
-## 两台电脑同时使用
+## Shared Folder / Multi-PC Notes
 
-- 两台电脑必须运行同一新版 `PartMap.exe`，并对程序目录和模型目录拥有读写权限。
-- 产品配置使用共享文件锁和版本号保护；不同电脑的热点与映射会自动同步。
-- 如果两台电脑恰好同时修改同一个产品配置，先保存者成功，另一台会载入最新版并提示重新操作，不会静默覆盖。
-- 重命名和删除会立即作用于共享目录中的真实文件，另一台电脑随后自动刷新。
-- 推荐使用两台电脑都一致的 UNC 路径，例如 `\\服务器\共享\模型`，不要使用盘符不同的映射驱动器。
-- 网络共享通常不使用本机 Windows 回收站，请在服务器或 NAS 上开启回收站、快照或备份。
+For multi-computer use:
 
-## 下载与 Windows 兼容版
+- use the same PartMap version on each computer
+- ensure every computer has read/write access to the program and model folders
+- use UNC paths such as `\\server\share\models` when possible
+- product configuration uses locking and version checks
+- simultaneous conflicting edits are not silently overwritten
+- renaming and deleting changes the real files in the shared directory
 
-GitHub Releases：<https://github.com/hellysu/partmap-oss/releases/latest>
+Network shares often do not use the local Windows Recycle Bin. Use NAS/server recycle-bin, snapshots, or backups when appropriate.
 
-- `PartMap-Setup-win-x64-*.exe`：推荐普通用户使用的完整安装版，支持开始菜单、可选桌面快捷方式和 Windows 卸载。
-- `PartMap-Portable-win-x64-*.zip`：64 位便携版，完整解压后直接运行 `PartMap.exe`，适合移动硬盘或不想安装时使用。
-- `PartMap-Portable-win-x86-*.zip`：仅用于 32 位 Windows，或 x64 版本无法启动时进行兼容排查。
-- 所有发布包均为 .NET 8 自包含版本，不要求电脑预装 .NET。
-- 便携版不能只复制单独的 EXE，必须保留 `PartMap.exe` 旁边的 DLL 和子目录。
-- 安装版默认安装到当前用户的 `%LocalAppData%\Programs\PartMap`，避免 PartMap 自身数据目录遇到 Program Files 写权限问题。
-- 程序目录和模型共享目录需要读写权限。如果启动失败，日志位于 `%LocalAppData%\PartMap\PartMap-startup.log`。
+## Filters and File Grouping
 
-## 从源码构建
+The display filter can switch between:
 
-需要 .NET 8 或更新 SDK：
+- all 3MF files
+- only `.gcode.3mf`
+- only ordinary `.3mf`
+
+Filtering changes only what is displayed. It does not delete files or remove mappings.
+
+A hotspot may contain multiple file groups. Groups can also be removed from one hotspot without affecting references from other hotspots.
+
+## File History
+
+The **Move to History** action moves selected real files into the product's `历史` directory.
+
+Archived filenames include the current date, for example:
+
+```text
+头盔_2026-09-23.3mf
+头盔_2026-09-23_v1.3mf
+```
+
+G-code filenames keep their special suffix in the correct position.
+
+## 中文说明
+
+PartMap 是一个 Windows 开源桌面工具，把产品示意图变成可操作的 3MF / G-code 3MF 文件索引。
+
+它主要解决的是：**一个产品零件很多、文件版本很多、切片文件很多时，不再靠翻文件夹和猜文件名找模型。**
+
+你可以直接点击图片上的部件，然后在右侧看到这个部件对应的普通 3MF 与 G-code 3MF 文件。
+
+主要能力：
+
+- 产品图片热点与文件绑定
+- 普通 3MF / G-code 3MF 分开管理
+- 文件拖入、拖出、改名、打开、归档
+- 未归类文件集中处理
+- 整个产品目录可以迁移到另一台电脑
+- 产品配置跟随模型目录保存
+- 支持多台电脑共享同一套模型目录
+- 可配合 Bambu Studio 工作流使用
+- 不依赖数据库或云端服务
+
+### 基本使用
+
+1. 双击 `PartMap.exe`。
+2. 点击“新建产品”，输入产品名，并选择包装图和原模型目录。
+3. 打开“布局编辑”。
+4. 在图片对应部位框选热点并命名。
+5. 把左侧待归类文件组拖到对应热点。
+6. 关闭布局编辑。
+7. 日常使用时点击图片上的部件，即可查看右侧对应文件。
+
+从资源管理器把 `.3mf` 拖到图片热点，会复制到当前模型目录并直接绑定该部件。拖到右侧部件文件区域，会加入当前选中的部件。
+
+### 子目录与排除目录
+
+底部“读取子目录”默认关闭，因此默认只读取模型根目录。
+
+需要时可以单独为某个产品开启子目录扫描，并使用“排除文件夹…”忽略不需要扫描的子目录。
+
+排除设置按相对路径保存在产品配置中。
+
+### 两台电脑同时使用
+
+- 两台电脑建议运行相同版本
+- 两边都需要模型目录的读写权限
+- 推荐使用统一 UNC 路径
+- 热点与映射会跟随共享配置同步
+- 同时修改同一产品时使用锁与版本检查避免静默覆盖
+- 真实文件的重命名和删除会立即作用于共享目录
+
+## Build from Source
+
+Requires .NET 8 SDK or newer:
 
 ```powershell
 dotnet build PartMap.csproj -c Release
@@ -100,13 +242,13 @@ dotnet run --project tests/PartMap.SmokeTests/PartMap.SmokeTests.csproj -c Relea
 dotnet publish PartMap.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false
 ```
 
-## 开源开发
+## Development
 
-- 许可证：MIT（见 LICENSE）。
-- 开发说明：DEVELOPMENT.md。
-- 贡献指南：CONTRIBUTING.md。
-- 安全问题：SECURITY.md。
+- [DEVELOPMENT.md](DEVELOPMENT.md)
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [SECURITY.md](SECURITY.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
 
 ## License
 
-PartMap is released under the MIT License. See [LICENSE](LICENSE).
+PartMap is released under the [MIT License](LICENSE).
