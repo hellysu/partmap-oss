@@ -1,0 +1,83 @@
+name: Release privacy audit
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/release-privacy-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: Inspect published portable packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Download latest portable packages
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p audit
+          gh release download             --repo "$GITHUB_REPOSITORY"             --pattern 'PartMap-Portable-win-*.zip'             --dir audit
+
+      - name: Reject private or development files
+        shell: bash
+        run: |
+          set -euo pipefail
+          found=0
+          for zip in audit/*.zip; do
+            echo "Auditing $zip"
+            entries="$(unzip -Z1 "$zip")"
+            printf '%s\n' "$entries"
+
+            if printf '%s\n' "$entries" | grep -E -i '(^|/)([^/]+\.pdb|[^/]+\.log|[^/]+\.tmp|[^/]+\.lock|[^/]+\.pfx|[^/]+\.snk|\.env(\..*)?|settings[^/]*\.json|PartMap\.product\.json|[^/]+\.3mf)$'; then
+              echo "::error::Release package contains a forbidden private/development file."
+              found=1
+            fi
+
+            if printf '%s\n' "$entries" | grep -E -i '(^|/)products/.+'; then
+              echo "::error::Release package contains files inside products/."
+              found=1
+            fi
+          done
+
+          if [ "$found" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Check app binary for developer user paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p extracted
+          i=0
+          for zip in audit/*.zip; do
+            dir="extracted/$i"
+            mkdir -p "$dir"
+            unzip -q "$zip" -d "$dir"
+            exe="$(find "$dir" -type f -iname 'PartMap.exe' -print -quit)"
+            if [ -z "$exe" ]; then
+              echo "::error::PartMap.exe not found in $zip"
+              exit 1
+            fi
+
+            if strings -a "$exe" | grep -E -i '[A-Z]:\\Users\\[^\\]+'; then
+              echo "::error::PartMap.exe contains an absolute Windows user-profile path."
+              exit 1
+            fi
+
+            i=$((i + 1))
+          done
+
+      - name: Summary
+        shell: bash
+        run: |
+          echo "Release privacy audit passed."
+          echo "No debug symbols, logs, local settings, certificates, model files, populated products folder, or absolute Windows user-profile path were found."
