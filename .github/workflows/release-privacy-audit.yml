@@ -63,8 +63,10 @@ jobs:
             exit 1
           fi
 
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq innoextract
           mkdir -p installer-extracted
-          7z x -y "$installer" -oinstaller-extracted >/dev/null
+          innoextract --extract --output-dir installer-extracted "$installer" >/dev/null
 
           if find installer-extracted -type f \( \
               -iname '*.pdb' -o \
