@@ -42,6 +42,20 @@ PartMap turns a packaging image, exploded view, or product diagram into a visual
 - rename, open, archive, or drag files without leaving the app
 - move the whole project to another computer without a database or cloud service
 
+## How It Works
+
+```mermaid
+flowchart LR
+    A[Product image / packaging diagram] --> B[Clickable hotspots]
+    C[3MF source files] --> B
+    D[G-code 3MF files] --> B
+    B --> E[Select a visible part]
+    E --> F[Open / rename / drag / archive]
+    F --> G[Bambu Studio / Windows Explorer]
+```
+
+PartMap keeps the visual part map and the real files connected, while the files themselves stay in normal Windows folders.
+
 ## Download
 
 **Latest release:**  
