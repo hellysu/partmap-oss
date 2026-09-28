@@ -17,8 +17,13 @@ jobs:
           $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
           if (-not $vs) { throw "MSVC installation not found" }
           $vcvars = Join-Path $vs "VC\Auxiliary\Build\vcvars64.bat"
-          Write-Host "Using $vcvars"
-          cmd.exe /d /s /c "`"`"$vcvars`" && cl /nologo /std:c++17 /EHsc /O2 spike\obn_probe.cpp /Fe:obn_probe.exe`""
+          @"
+          @echo off
+          call "$vcvars"
+          if errorlevel 1 exit /b %errorlevel%
+          cl /nologo /std:c++17 /EHsc /O2 spike\obn_probe.cpp /Fe:obn_probe.exe
+          "@ | Set-Content -Path build-probe.cmd -Encoding ascii
+          & .\build-probe.cmd
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - uses: actions/upload-artifact@v4
         with:
